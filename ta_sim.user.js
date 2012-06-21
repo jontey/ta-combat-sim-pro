@@ -3,7 +3,7 @@
 // @description    Allows you to simulate combat before actually attacking.
 // @namespace      https://prodgame*.alliances.commandandconquer.com/*/index.aspx* 
 // @include        https://prodgame*.alliances.commandandconquer.com/*/index.aspx*
-// @version        1.3.0.1
+// @version        1.3.0.4
 // @author         WildKatana
 // @require        http://sizzlemctwizzle.com/updater.php?id=130344&days=1
 // ==/UserScript==
@@ -95,7 +95,10 @@
                 var player_cities = mainData.get_Cities();
                 var current_city = player_cities.get_CurrentCity();
                 var own_city = player_cities.get_CurrentOwnCity();
-
+                
+                // Bust the cache
+                //own_city.get_CityArmyFormationsManager().ZJG.d[own_city.get_CityArmyFormationsManager().XJG].UpdateFormation();
+                
                 localStorage.ta_sim_last_city = current_city.get_Id();
 
                 var alliance = ClientLib.Data.MainData.GetInstance().get_Alliance();
@@ -104,6 +107,7 @@
                 combatData.m_Version = 1;
                 
                 var unitData = own_city.get_CityUnitsData().HIG.l;
+                var offense_units = own_city.get_CityArmyFormationsManager().ZJG.d[current_city.get_Id()].get_ArmyUnits().l;
                 var data = new Array();
 
                 for (var i = 0; i < unitData.length; i++) {
@@ -111,8 +115,8 @@
                   info.h = unitData[i].get_Health() - unitData[i].get_CurrentDamage();
                   info.i = unitData[i].get_MdbUnitId();
                   info.l = unitData[i].get_CurrentLevel();
-                  info.x = unitData[i].get_CoordX();
-                  info.y = unitData[i].get_CoordY();
+                  info.x = offense_units[i].get_CoordX();
+                  info.y = offense_units[i].get_CoordY();
                   data.push(info);
                 }
 
@@ -132,26 +136,25 @@
                 combatData.UN = data; // Defenders
 
                 data = new Array();
-                for (var i = 0;
-                (i < 9); i++) {
-                  for (var j = 0;
-                  (j < 8); j++) {
-                    var terrainType = current_city.GetResourceType(i, (j + current_city.get_Height()));
+                for (var i = 0; i < 9; i++) {
+                  for (var j = 0; j < 8 ; j++) {
+                    var terrainType = current_city.GetResourceType(i, (j + 8));
                     var unitType = -1;
                     switch (terrainType) {
                     case ClientLib.Data.ECityTerrainType.FOREST:
-                        unitType = 0x7c;
-                        break;
+                      unitType = 0x7c;
+                      break;
                     case ClientLib.Data.ECityTerrainType.BRIAR:
-                        unitType = 0x7b;
-                        break;
+                      unitType = 0x7b;
+                      break;
                     case ClientLib.Data.ECityTerrainType.SWAMP:
-                        unitType = 0x7d;
-                        break;
+                      unitType = 0x7d;
+                      break;
                     case ClientLib.Data.ECityTerrainType.WATER:
-                        unitType = 0x7e;
-                        break;
+                      unitType = 0x7e;
+                      break;
                     }
+                    
                     if (unitType != -1) {
                       info = new Object();
                       info.h = 100;
@@ -163,6 +166,7 @@
                     }
                   }
                 }
+                
                 combatData.VN = data; // Terrain
 
                 unitData = current_city.get_CityBuildingsData().ZEI.l;
@@ -202,8 +206,7 @@
                 combatData.m_AttackTimeStamp = new Date().getTime();
                 var resourceLayout = new Object();
                 resourceLayout.l = new Array();
-                for (var i = 0;
-                (i < combatData.WN.length); i++) {
+                for (var i = 0; i < combatData.WN.length; i++) {
                   resourceLayout.l[combatData.WN[i].y] = 0;
                 }
                 combatData.m_ResourceLayout = resourceLayout;
@@ -213,9 +216,6 @@
 
                 combatData.m_MaxDuration = 120;
                 combatData.m_Complete = false;
-                if (combatData.m_Complete) {
-                  combatData.m_Id = -1;
-                }
                 combatData.m_Debug = null;
 
                 var battleground = ClientLib.Vis.VisMain.GetInstance().get_Battleground();
