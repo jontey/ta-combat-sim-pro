@@ -112,7 +112,7 @@
 
                 for (var i = 0; i < unitData.length; i++) {
                   var info = new Object();
-                  info.h = unitData[i].get_Health() - unitData[i].get_CurrentDamage();
+                  info.h = unitData[i].get_Health();
                   info.i = unitData[i].get_MdbUnitId();
                   info.l = unitData[i].get_CurrentLevel();
                   info.x = offense_units[i].get_CoordX();
@@ -126,7 +126,7 @@
                 data = new Array();
                 for (i = 0; i < unitData.length; i++) {
                   info = new Object();
-                  info.h = unitData[i].get_Health() - unitData[i].get_CurrentDamage();
+                  info.h = unitData[i].get_Health();
                   info.i = unitData[i].get_MdbUnitId();
                   info.l = unitData[i].get_CurrentLevel();
                   info.x = unitData[i].get_CoordX();
@@ -173,7 +173,7 @@
                 data = new Array();
                 for (i = 0; i < unitData.length; i++) {
                   info = new Object();
-                  info.h = unitData[i].get_Health() - unitData[i].get_CurrentDamage();
+                  info.h = unitData[i].get_Health();
                   info.i = unitData[i].get_MdbUnitId();
                   info.l = unitData[i].get_CurrentLevel();
                   info.x = unitData[i].get_CoordX();
