@@ -3,7 +3,7 @@
 // @description    Allows you to simulate combat before actually attacking.
 // @namespace      https://prodgame*.alliances.commandandconquer.com/*/index.aspx* 
 // @include        https://prodgame*.alliances.commandandconquer.com/*/index.aspx*
-// @version        1.3.0.4b1
+// @version        1.3.0.5b1
 // @author         WildKatana
 // @require        http://sizzlemctwizzle.com/updater.php?id=130344&days=1
 // ==/UserScript==
@@ -91,6 +91,7 @@
             },
             setupBattleground: function () {
               try {
+                $I.LZH.KAI().EAI().JM(-1);
                 var mainData = ClientLib.Data.MainData.GetInstance();
                 var player_cities = mainData.get_Cities();
                 var current_city = player_cities.get_CurrentCity();
@@ -102,9 +103,9 @@
                 localStorage.ta_sim_last_city = current_city.get_Id();
 
                 var alliance = ClientLib.Data.MainData.GetInstance().get_Alliance();
-                //var combatData = (new $I.CM).$ctor();
-                var combatData = (new $I.CM).QB();
-                combatData.m_Version = 1;
+                var combatData = (new $I.CM).$ctor();
+                //var combatData = (new $I.CM).QB();
+                combatData.RN = 1; // Version
                 
                 var unitData = own_city.get_CityUnitsData().HIG.l;
                 var offense_units = own_city.get_CityArmyFormationsManager().ZJG.d[current_city.get_Id()].get_ArmyUnits().l;
@@ -141,18 +142,18 @@
                     var terrainType = current_city.GetResourceType(i, (j + 8));
                     var unitType = -1;
                     switch (terrainType) {
-                    case ClientLib.Data.ECityTerrainType.FOREST:
-                      unitType = 0x7c;
-                      break;
-                    case ClientLib.Data.ECityTerrainType.BRIAR:
-                      unitType = 0x7b;
-                      break;
-                    case ClientLib.Data.ECityTerrainType.SWAMP:
-                      unitType = 0x7d;
-                      break;
-                    case ClientLib.Data.ECityTerrainType.WATER:
-                      unitType = 0x7e;
-                      break;
+                      case ClientLib.Data.ECityTerrainType.FOREST:
+                        unitType = 0x7c;
+                        break;
+                      case ClientLib.Data.ECityTerrainType.BRIAR:
+                        unitType = 0x7b;
+                        break;
+                      case ClientLib.Data.ECityTerrainType.SWAMP:
+                        unitType = 0x7d;
+                        break;
+                      case ClientLib.Data.ECityTerrainType.WATER:
+                        unitType = 0x7e;
+                        break;
                     }
                     
                     if (unitType != -1) {
@@ -183,19 +184,19 @@
                 
                 combatData.WN = data; // Buildings
 
-                combatData.m_Supports = null;
-                combatData.m_StartStep = 5902339;
+                combatData.XN = null; // Support Structures
+                combatData.SN = 8696244; // Start Step
                 combatData.m_CombatSteps = 1;
                 combatData.m_BoostInfantry = alliance.get_POIInfantryBonus();
                 combatData.m_BoostVehicle = alliance.get_POIVehicleBonus();
                 combatData.m_BoostAir = alliance.get_POIAirBonus();
-                combatData.m_BoostDefense = current_city.m_AllianceDefenseBonus;
+                combatData.m_BoostDefense = current_city.m_AllianceDefenseBonus ? current_city.m_AllianceDefenseBonus : 0;
                 combatData.m_AttackerBaseId = own_city.get_Id();
                 combatData.m_AttackerBaseName = own_city.get_Name();
                 combatData.m_AttackerPlayerId = own_city.get_PlayerId();
-                combatData.m_AttackerPlayerName = own_city.get_OwnerName();
+                combatData.m_AttackerPlayerName = "Player"; // FIXME
                 combatData.m_AttackerAllianceId = own_city.get_AllianceId();
-                combatData.m_AttackerAllianceName = own_city.get_OwnerAllianceName();
+                combatData.m_AttackerAllianceName = "Alliance"; // FIXME
                 combatData.m_DefenderBaseId = current_city.get_Id();
                 combatData.m_DefenderBaseName = current_city.get_Name();
                 combatData.m_DefenderPlayerId = own_city.get_PlayerId();
@@ -206,17 +207,18 @@
                 combatData.m_AttackTimeStamp = new Date().getTime();
                 var resourceLayout = new Object();
                 resourceLayout.l = new Array();
-                for (var i = 0; i < combatData.WN.length; i++) {
-                  resourceLayout.l[combatData.WN[i].y] = 0;
-                }
                 combatData.m_ResourceLayout = resourceLayout;
                 combatData.m_DefenderFaction = current_city.get_CityFaction();
                 combatData.m_AttackerModules = this.attacker_modules;
                 combatData.m_DefenderModules = this.defender_modules;
+                
+                if (((combatData.m_DefenderFaction == $I.WHK.FORFaction) || (combatData.m_DefenderFaction == $I.WHK.NPCBase)) || (combatData.m_DefenderFaction == $I.WHK.NPCCamp)) {
+                  combatData.GM();
+                }
 
                 combatData.m_MaxDuration = 120;
                 combatData.m_Complete = false;
-                combatData.m_Debug = null;
+                combatData.ZN = null; // Debug
 
                 var battleground = ClientLib.Vis.VisMain.GetInstance().get_Battleground();
                 battleground.Reset();
@@ -224,6 +226,9 @@
                 battleground.InitBattle();
                 battleground.DXF(combatData);
                 battleground.StartBattle();
+                if (battleground.FAG < 0x1d4c0) {
+                  //battleground.FAG += 0xbb8;
+                }
 
                 return battleground;
               } catch (e) {
