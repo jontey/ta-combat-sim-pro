@@ -217,7 +217,7 @@
                 combatData.RN = 1; // Version
                 
                 var unitData = own_city.get_CityUnitsData().HIG.l;
-                var offense_units = own_city.get_CityArmyFormationsManager().GetFormationByTargetBaseId(current_city.get_Id()).get_ArmyUnits().l; // FIXED
+                var offense_units = own_city.get_CityArmyFormationsManager().ZJG.d[current_city.get_Id()].get_ArmyUnits().l; // FIXME 
                 var data = new Array();
 
                 for (var i = 0; i < unitData.length; i++) {
@@ -225,8 +225,8 @@
                   info.h = unitData[i].get_Health();
                   info.i = unitData[i].get_MdbUnitId();
                   info.l = unitData[i].get_CurrentLevel();
-                  info.x = offense_units[i].get_CoordX();// X
-				  info.y = offense_units[i].get_CoordY();// Y
+                  info.x = unitData[i].get_CoordX();
+				  info.y = unitData[i].get_CoordY();
                   data.push(info);
                 }
 
@@ -239,8 +239,8 @@
                   info.h = unitData[i].get_Health();
                   info.i = unitData[i].get_MdbUnitId();
                   info.l = unitData[i].get_CurrentLevel();
-                  info.x = offense_units[i].get_CoordX();// X
-				  info.y = offense_units[i].get_CoordY();// Y
+                  info.x = unitData[i].get_CoordX();
+				  info.y = unitData[i].get_CoordY();
                   data.push(info);
                 }
                 combatData.UN = data; // Defenders
@@ -286,8 +286,8 @@
                   info.h = unitData[i].get_Health();
                   info.i = unitData[i].get_MdbUnitId();
                   info.l = unitData[i].get_CurrentLevel();
-                  info.x = offense_units[i].get_CoordX();// X
-				  info.y = offense_units[i].get_CoordY();// Y
+                  info.x = unitData[i].get_CoordX();
+				  info.y = unitData[i].get_CoordY();
                   data.push(info);
                 }
                 
