@@ -3,8 +3,8 @@
 // @description    Allows you to simulate combat before actually attacking.
 // @namespace      https://prodgame*.alliances.commandandconquer.com/*/index.aspx* 
 // @include        https://prodgame*.alliances.commandandconquer.com/*/index.aspx*
-// @version        1.3.0.5b1
-// @author         WildKatana
+// @version        1.3.0.9 Fixed
+// @author         WildKatana, MrHIDEn
 // @require        http://sizzlemctwizzle.com/updater.php?id=130344&days=1
 // ==/UserScript==
 (function () {
@@ -16,10 +16,63 @@
           extend: qx.core.Object,
           members: {
             buttonSimulateCombat: null,
+            buttonLayoutSave: null,
+            buttonLayoutLoad: null,
             buttonReturnSetup: null,
+            buttonUnlockAttack: null,
+            
+            add_ViewModeChange: null,
+            
             attacker_modules: null,
             defender_modules: null,
+            
+            lastPercentage: null,
+            lastRepairTime: null,
+            lastEnemyPercentage: null,
+            lastDFPercentage: null,
+            lastCYPercentage: null,
+            lastInfantryPercentage: null,
+            lastVehiclePercentage: null,
+            lastAirPercentage: null,
+            lastEnemyUnitsPercentage: null,
+            lastEnemyBuildingsPercentage: null,
+            lastVictory: null,
+            lastInfantryRepairTime: null,
+            lastVehicleRepairTime: null,
+            lastAircraftRepairTime: null,
+            totalSeconds: null,
+            
+            tiberiumSpoils: null,
+            crystalSpoils: null,
+            creditSpoils: null,
+            researchSpoils: null,
+            
+            units: null,
+            units_list: null,
+            saved_units: null,
+            layoutsList: null,
+            layoutsLabelText: null,
+            
+            battleResultsBox: null,
+            
+            troopDamageLabel: null,
+            enemyTroopStrengthLabel: null,
+            enemyBuildingsStrengthLabel: null,
+            enemyUnitsStrengthLabel: null,
+            airTroopStrengthLabel: null,
+            infantryTroopStrengthLabel: null,
+            vehicleTroopStrengthLabel: null,
+            CYTroopStrengthLabel: null,
+            DFTroopStrengthLabel: null,
+            simTroopDamageLabel: null,
+            simRepairTimeLabel: null,
+            simVictoryLabel: null,
+            simTimeLabel: null,
+            enemySupportLevelLabel: null,
+            enemySupportStrengthLabel: null,
+            
             initialize: function () {
+              this.add_ViewModeChange = (new ClientLib.Vis.ViewModeChange).HGL(this, this.onViewChange);
               this.buttonSimulateCombat = new qx.ui.form.Button("Simulate");
               this.buttonSimulateCombat.set({
                 width: 80,
@@ -48,25 +101,46 @@
                   // Get the active modules
                   // Doing this the hard and unreliable way for now, until we figure out a better way
                   _this.attacker_modules = {};
-                  var g = ClientLib.Res.ResMain.GetInstance();
-                  var player_research = ClientLib.Data.MainData.GetInstance().get_Player().get_PlayerResearch();
                   _this.attacker_modules.l = [];
+                  var g = ClientLib.Res.ResMain.GetInstance();
+                  
+                  // Get the player faction
+                  // var gdi_unit_ids = g.GetFactionUnitIds(1);
+                  // var nod_unit_ids = g.GetFactionUnitIds(2);
+                  // var forgotten_unit_ids = g.GetFactionUnitIds(3);
+                  
+                  var player_research = ClientLib.Data.MainData.GetInstance().get_Player().get_PlayerResearch();
+                  
                   for (var i in g.YEJ.units) {
                     var ug = g.GetUnit_Obj(i);
                     var research = player_research.GetResearchItemFomMdbId(ug.tl);
+                    
                     var modules = ug.m;
                     for (var j in modules) {
                       var module = modules[j];
-                      if (module.t == 1) {
-                        _this.attacker_modules.l.push(module.i);
+                      if (research && module.r.length > 0) {
+                        try {
+                          // This is an upgradeable ability
+                          var required_level = module.r[0].l;
+                          var current_level = research.get_CurrentLevel();
+                          if (current_level >= required_level) {
+                            _this.attacker_modules.l.push(module.i);
+                          }
+                        }
+                        catch (e) {
+                          console.log(e);
+                        }
                       }
-                      if (research && module.t == 3 && research.m_Level == 2) {
+                      else {
                         _this.attacker_modules.l.push(module.i);
                       }
                     }
                   }
+                  
+                  // Get the defender modules
 
                   _this.defender_modules = _this.attacker_modules;
+                  ClientLib.Vis.VisMain.GetInstance().add_ViewModeChange(_this.add_ViewModeChange);
                 } catch (e) {
                   console.log(e);
                 }
@@ -77,6 +151,41 @@
                 top: 130,
                 right: 0
               });
+              
+              this.buttonUnlockAttack = new qx.ui.form.Button("Unlock");
+              this.buttonUnlockAttack.set({
+                width: 60,
+                height: 45,
+                appearance: "button-text-small",
+                toolTipText: "Unlock"
+              });
+              this.buttonUnlockAttack.addListener("click", this.unlockAttacks, this);
+              this.buttonUnlockAttack.setOpacity(0.5);
+              armyBar.add(this.buttonUnlockAttack, {
+                top: 81,
+                right: 0
+              });
+            },
+            unlockAttacks: function () {
+              var armyBar = qx.core.Init.getApplication().getUIItem(ClientLib.Data.Missions.PATH.BAR_ATTACKSETUP);
+              armyBar.remove(this.buttonUnlockAttack);
+              var _this = this;
+              setTimeout(function () {
+                armyBar.add(_this.buttonUnlockAttack);
+              }, 2000);
+            },
+            onViewChange: function (oldMode, newMode) {
+              try {
+                if (oldMode == webfrontend.gui.PlayArea.PlayArea.modes.EMode_CombatSetupDefense && newMode == webfrontend.gui.PlayArea.PlayArea.modes.EMode_PlayerOffense) {
+                  // TODO - Switched from Combat Setup to the Simulation, show the stats box
+                  
+                }
+                else {
+                  // TODO - Close the stats box
+                }
+              } catch (e) {
+                console.log(e);
+              }
             },
             returnSetup: function () {
               // Set the scene again, just in case it didn't work the first time
@@ -108,7 +217,7 @@
                 combatData.RN = 1; // Version
                 
                 var unitData = own_city.get_CityUnitsData().HIG.l;
-                var offense_units = own_city.get_CityArmyFormationsManager().ZJG.d[current_city.get_Id()].get_ArmyUnits().l;
+                var offense_units = own_city.get_CityArmyFormationsManager().GetFormationByTargetBaseId(current_city.get_Id()).get_ArmyUnits().l; // FIXED
                 var data = new Array();
 
                 for (var i = 0; i < unitData.length; i++) {
@@ -116,8 +225,8 @@
                   info.h = unitData[i].get_Health();
                   info.i = unitData[i].get_MdbUnitId();
                   info.l = unitData[i].get_CurrentLevel();
-                  info.x = offense_units[i].get_CoordX();
-                  info.y = offense_units[i].get_CoordY();
+                  info.x = offense_units.VFB.LJG.l[i].get_CoordX();// X
+				  info.y = offense_units.VFB.LJG.l[i].get_CoordY();// Y
                   data.push(info);
                 }
 
@@ -185,21 +294,21 @@
                 combatData.WN = data; // Buildings
 
                 combatData.XN = null; // Support Structures
-                combatData.SN = 8696244; // Start Step
+                combatData.SN = 8696244; // Start Step - this is just a random number
                 combatData.m_CombatSteps = 1;
                 combatData.m_BoostInfantry = alliance.get_POIInfantryBonus();
                 combatData.m_BoostVehicle = alliance.get_POIVehicleBonus();
                 combatData.m_BoostAir = alliance.get_POIAirBonus();
-                combatData.m_BoostDefense = current_city.m_AllianceDefenseBonus ? current_city.m_AllianceDefenseBonus : 0;
+                combatData.m_BoostDefense = current_city.m_AllianceDefenseBonus ? current_city.m_AllianceDefenseBonus : 0; // This might not be working
                 combatData.m_AttackerBaseId = own_city.get_Id();
                 combatData.m_AttackerBaseName = own_city.get_Name();
                 combatData.m_AttackerPlayerId = own_city.get_PlayerId();
-                combatData.m_AttackerPlayerName = "Player"; // FIXME
+                combatData.m_AttackerPlayerName = own_city.get_PlayerName(); // FIXED - API 
                 combatData.m_AttackerAllianceId = own_city.get_AllianceId();
-                combatData.m_AttackerAllianceName = "Alliance"; // FIXME
+                combatData.m_AttackerAllianceName = own_city.get_AllianceName(); // FIXED - API 
                 combatData.m_DefenderBaseId = current_city.get_Id();
                 combatData.m_DefenderBaseName = current_city.get_Name();
-                combatData.m_DefenderPlayerId = own_city.get_PlayerId();
+                combatData.m_DefenderPlayerId = current_city.get_PlayerId(); // FIXED
                 combatData.m_DefenderPlayerName = current_city.get_OwnerName();
                 combatData.m_DefenderAllianceId = current_city.get_AllianceId();
                 combatData.m_DefenderAllianceName = current_city.get_OwnerAllianceName();
