@@ -225,8 +225,8 @@
                   info.h = unitData[i].get_Health();
                   info.i = unitData[i].get_MdbUnitId();
                   info.l = unitData[i].get_CurrentLevel();
-                  info.x = unitData[i].get_CoordX();
-				  info.y = unitData[i].get_CoordY();
+                  info.x = offense_units[i].get_CoordX();
+                  info.y = offense_units[i].get_CoordY();
                   data.push(info);
                 }
 
@@ -239,8 +239,8 @@
                   info.h = unitData[i].get_Health();
                   info.i = unitData[i].get_MdbUnitId();
                   info.l = unitData[i].get_CurrentLevel();
-                  info.x = unitData[i].get_CoordX();
-				  info.y = unitData[i].get_CoordY();
+                  info.x = offense_units[i].get_CoordX();
+                  info.y = offense_units[i].get_CoordY();
                   data.push(info);
                 }
                 combatData.UN = data; // Defenders
@@ -286,8 +286,8 @@
                   info.h = unitData[i].get_Health();
                   info.i = unitData[i].get_MdbUnitId();
                   info.l = unitData[i].get_CurrentLevel();
-                  info.x = unitData[i].get_CoordX();
-				  info.y = unitData[i].get_CoordY();
+                  info.x = offense_units[i].get_CoordX();
+                  info.y = offense_units[i].get_CoordY(); 
                   data.push(info);
                 }
                 
