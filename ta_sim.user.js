@@ -3,7 +3,7 @@
 // @description    Allows you to simulate combat before actually attacking.
 // @namespace      https://prodgame*.alliances.commandandconquer.com/*/index.aspx* 
 // @include        https://prodgame*.alliances.commandandconquer.com/*/index.aspx*
-// @version        1.3.0.9 Fixed Final
+// @version        1.3.0.9 Fixed 5
 // @author         WildKatana, MrHIDEn
 // @require        http://sizzlemctwizzle.com/updater.php?id=130344&days=1
 // ==/UserScript==
@@ -225,8 +225,8 @@
                   info.h = unitData[i].get_Health();
                   info.i = unitData[i].get_MdbUnitId();
                   info.l = unitData[i].get_CurrentLevel();
-                  info.x = unitData[i].get_CoordX();
-                  info.y = unitData[i].get_CoordY();
+                  info.x = offense_units[i].get_CoordX();
+                  info.y = offense_units[i].get_CoordY();
                   data.push(info);
                 }
 
