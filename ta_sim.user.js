@@ -3,8 +3,8 @@
 // @description    Allows you to simulate combat before actually attacking.
 // @namespace      https://prodgame*.alliances.commandandconquer.com/*/index.aspx* 
 // @include        https://prodgame*.alliances.commandandconquer.com/*/index.aspx*
-// @version        1.3.1.0 Fixed Update 29.06.2012
-// @author         WildKatana, PythEch
+// @version        1.3.1.0 Fixed v4 (Update 28.06.2012)
+// @author         WildKatana | Updated by CodeEcho and PythEch
 // ==/UserScript==
 (function () {
   var TASuite_mainFunction = function () {
@@ -144,7 +144,7 @@
 
               var armyBar = qx.core.Init.getApplication().getUIItem(ClientLib.Data.Missions.PATH.BAR_ATTACKSETUP);
               armyBar.add(this.buttonSimulateCombat, {
-                top: 130,
+                top: 153,
                 right: 0
               });
               
@@ -158,7 +158,7 @@
               this.buttonUnlockAttack.addListener("click", this.unlockAttacks, this);
               this.buttonUnlockAttack.setOpacity(0.5);
               armyBar.add(this.buttonUnlockAttack, {
-                top: 81,
+                top: 109,
                 right: 0
               });
               
@@ -565,13 +565,15 @@
                 var data = new Array();
 
                 for (var i = 0; i < unitData.length; i++) {
-                  var info = new Object();
-                  info.h = unitData[i].get_Health();
-                  info.i = unitData[i].get_MdbUnitId();
-                  info.l = unitData[i].get_CurrentLevel();
-                  info.x = offense_units[i].get_CoordX();
-                  info.y = offense_units[i].get_CoordY();
-                  data.push(info);
+				  if (offense_units[i].get_Enabled()) {
+					  var info = new Object();
+					  info.h = unitData[i].get_Health();
+					  info.i = unitData[i].get_MdbUnitId();
+					  info.l = unitData[i].get_CurrentLevel();
+					  info.x = offense_units[i].get_CoordX();
+					  info.y = offense_units[i].get_CoordY();
+					  data.push(info);
+				  }
                 }
 
                 combatData.VVWJIF = data; // Attackers
