@@ -1133,7 +1133,7 @@
                         var saved_unit = saved_units[i];
                         units_list[i].set_CoordX(saved_unit.x);
                         units_list[i].set_CoordY(saved_unit.y);
-                        units_list[i].QFBEOT = saved_unit.id; // m_UnitId renamed to QFBEOT
+						//units_list[i].QFBEOT = saved_unit.id; // m_UnitId renamed to QFBEOT
 						if(saved_unit.enabled == undefined) {
 						   units_list[i].set_Enabled(true);
 						} else {
@@ -1152,7 +1152,7 @@
                         var armyUnit = {};
                         armyUnit.x = unit.get_CoordX();
                         armyUnit.y = unit.get_CoordY();
-                        armyUnit.id = unit.get_Id();
+						//armyUnit.id = unit.get_Id();
 						armyUnit.enabled = unit.get_Enabled(); 
                         this.saved_units.push(armyUnit);
                      }
