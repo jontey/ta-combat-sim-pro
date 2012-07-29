@@ -1052,17 +1052,20 @@
               
               combatData.UJWJOI = data; // Attackers renamed to UJWJOI
               
-              unitData = current_city.get_CityUnitsData().TXDWUM.l; // Defender Units renamed to TXDWUM
               data = new Array();
-              for (i = 0; i < unitData.length; i++)
+              if (current_city.get_CityUnitsData().TXDWUM != null) // empty defender army
               {
-                info = new Object();
-                info.h = unitData[i].get_Health();
-                info.i = unitData[i].get_MdbUnitId();
-                info.l = unitData[i].get_CurrentLevel();
-                info.x = unitData[i].get_CoordX();
-                info.y = unitData[i].get_CoordY();
-                data.push(info);
+                unitData = current_city.get_CityUnitsData().TXDWUM.l; // Defender Units
+                for (i = 0; i < unitData.length; i++)
+                {
+                  info = new Object();
+                  info.h = unitData[i].get_Health();
+                  info.i = unitData[i].get_MdbUnitId();
+                  info.l = unitData[i].get_CurrentLevel();
+                  info.x = unitData[i].get_CoordX();
+                  info.y = unitData[i].get_CoordY();
+                  data.push(info);
+                }
               }
               combatData.PMEAOH = data; // Defenders renamed to PMEAOH
               
