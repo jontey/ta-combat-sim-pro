@@ -1338,7 +1338,7 @@
           },
           restoreFormation : function (saved_units)
           {
-            saved_units = saved_units || this.saved_units;
+            var sUnits = saved_units || this.saved_units;
             var units = this.getCityPreArmyUnits();
             var units_list = units.get_ArmyUnits().l;
             for (var idx = 0; idx < sUnits.length; idx++)
