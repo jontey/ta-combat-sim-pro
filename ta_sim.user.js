@@ -1000,12 +1000,9 @@
               combatData.m_AttackerModules = this.attacker_modules;
               combatData.m_DefenderModules = this.defender_modules;
 
-              switch (combatData.m_DefenderFaction) {
-              case ClientLib.Base.EFactionType.FORFaction:
-              case ClientLib.Base.EFactionType.NPCBase:
-              case ClientLib.Base.EFactionType.NPCCamp:
+              if (((combatData.m_DefenderFaction === ClientLib.Base.EFactionType.FORFaction) || (combatData.m_DefenderFaction === ClientLib.Base.EFactionType.NPCBase)) || (combatData.m_DefenderFaction === ClientLib.Base.EFactionType.NPCCamp))
+              {
                 combatData.FGCUFQ(); // This might not be needed
-                break;
               }
 
               combatData.m_MaxDuration = 120;
