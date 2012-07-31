@@ -252,7 +252,9 @@ var testclass = {
 		this.labels.time.setTextColor("black");
 		vBox.add(hBox1);
 		
-		/*
+		
+		
+		
 		// Degree selector
 		var hBox3 = new qx.ui.container.Composite();
 		hBox3.setLayout(new qx.ui.layout.HBox(5));
@@ -315,7 +317,7 @@ var testclass = {
 		// vBox.add(this.ajaxImage);
 		// The Optimize button
 		this.statsPage.add(this.buttons.attack.optimize);
-		*/
+		
 		
 		this.statsPage.add(vBox);
 	},
