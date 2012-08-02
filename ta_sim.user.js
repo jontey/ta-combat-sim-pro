@@ -3,13 +3,85 @@
 // @description    Allows you to simulate combat before actually attacking.
 // @namespace      https://prodgame*.alliances.commandandconquer.com/*/index.aspx*
 // @include        https://prodgame*.alliances.commandandconquer.com/*/index.aspx*
-// @version        1.3.3.5
+// @version        1.4
 // @author         WildKatana | Updated by CodeEcho, PythEch, Matthias Fuchs, Enceladus, KRS_L, TheLuminary, Panavia2 and Da Xue
 // @require        http://sizzlemctwizzle.com/updater.php?id=138212
 // ==/UserScript==
 (function () {
   var TASuite_mainFunction = function () {
     console.log("Simulator loaded");
+
+    // Using EA's API (Limited Support)
+    function LimitedCreateTweak() {
+      var TASuite = {};
+      qx.Class.define("TASuite.main", {
+        type: "singleton",
+        extend: qx.core.Object,
+        members: {
+          buttons: {
+            attack: {
+              simulate: null, // buttonSimulateCombat
+              unlock: null, // buttonUnlockAttack
+            },
+          },
+
+          initialize: function () {
+            var armyBar = qx.core.Init.getApplication().getUIItem(ClientLib.Data.Missions.PATH.BAR_ATTACKSETUP);
+            this.buttons.attack.simulate = new qx.ui.form.Button("Simulate");
+            this.buttons.attack.simulate.set({
+              width: 58,
+              appearance: "button-text-small",
+              toolTipText: "Start Combat Simulation"
+            });
+            this.buttons.attack.simulate.addListener("click", this.startSimulation, this);
+            armyBar.add(this.buttons.attack.simulate, {
+              top: 112,
+              right: 62
+            });
+
+            this.buttons.attack.unlock = new qx.ui.form.Button("Unlock");
+            this.buttons.attack.unlock.set({
+              width: 55,
+              height: 46,
+              appearance: "button-text-small",
+              toolTipText: "Unlock Attack Button"
+            });
+            this.buttons.attack.unlock.addListener("click", this.unlockAttacks, this);
+            this.buttons.attack.unlock.setOpacity(0.5);
+            armyBar.add(this.buttons.attack.unlock, {
+              top: 107,
+              right: 4
+            });
+
+            _this = this;
+          },
+          unlockAttacks: function () {
+            var armyBar = qx.core.Init.getApplication().getUIItem(ClientLib.Data.Missions.PATH.BAR_ATTACKSETUP);
+            armyBar.remove(this.buttons.attack.unlock);
+            var _this = this;
+            setTimeout(function () {
+              armyBar.add(_this.buttons.attack.unlock);
+            }, 2000);
+          },
+          startSimulation: function () {
+            try {
+              var ownCity = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentOwnCity();
+              var city = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCity();
+              ownCity.get_CityArmyFormationsManager().set_CurrentTargetBaseId(city.get_Id());
+              ClientLib.Data.MainData.GetInstance().get_Combat().Clear();
+              city.SimulateBattle();
+              ClientLib.Data.MainData.GetInstance().get_Combat().set_Id(city.get_Id());
+              var app = qx.core.Init.getApplication();
+              app.getPlayArea().setView(webfrontend.gui.PlayArea.PlayArea.modes.EMode_CombatAttacker, city.get_Id(), 0, 0);
+
+            } catch (e) {
+              console.log(e);
+            }
+          },
+        }
+      });
+    }
+
     function CreateTweak() {
       var TASuite = {};
       qx.Class.define("TASuite.main", {
@@ -26,7 +98,6 @@
               unlock: null, // buttonUnlockAttack
               unlockReset: null, // buttonUnlockReset
               tools: null, // buttonTools
-              optimize: null // buttonOptimize
             },
             simulate: {
               back: null // buttonReturnSetup
@@ -104,12 +175,6 @@
           saved_units: null,
           layoutsList: null,
           layoutsLabelText: null,
-
-
-          degreeSelect: null,
-          primarySelect: null,
-          secondarySelect: null,
-          tertiarySelect: null,
 
           battleResultsBox: null,
           statsPage: null,
@@ -495,14 +560,6 @@
               }
             }, 10000);
 
-            this.buttons.attack.optimize = new qx.ui.form.Button("Optimize");
-            this.buttons.attack.optimize.set({
-              width: 80,
-              appearance: "button-text-small",
-              toolTipText: "Attempt to optimize your setup"
-            });
-            this.buttons.attack.optimize.addListener("click", this.optimizeLayout, this);
-
             // The Battle Simulator box
             this.battleResultsBox = new qx.ui.window.Window("Battle Simulator");
             this.battleResultsBox.setPadding(1);
@@ -599,10 +656,10 @@
             }
 
             // every unit
-            if (city.get_CityUnitsData().TXDWUM !== null) { 
+            if (city.get_CityUnitsData().TXDWUM !== null) {
               num = city.get_CityUnitsData().TXDWUM.l.length;
               for (j = num; --j >= 0;) {
-                var unit = city.get_CityUnitsData().TXDWUM.l[j]; 
+                var unit = city.get_CityUnitsData().TXDWUM.l[j];
                 mod = unit.get_HitpointsPercent();
                 for (i = unit.MNNADO.rer.length; --i >= 0;) {
                   spoils[unit.MNNADO.rer[i].t] += mod * unit.MNNADO.rer[i].c;
@@ -1222,9 +1279,6 @@
               this.saved_units.push(armyUnit);
             }
           },
-          optimizeLayout: function () {
-
-          }
         }
       });
     }
@@ -1237,6 +1291,8 @@
           if (a && mb && typeof PerforceChangelist !== 'undefined') {
             if (PerforceChangelist === 364597) {
               CreateTweak();
+            } else if (PerforceChangelist === 366187) {
+              LimitedCreateTweak();
             } else {
               alert("C&C TA Simulator:\r\nUnsupported Version:" + PerforceChangelist);
             }
