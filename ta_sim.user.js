@@ -1291,7 +1291,7 @@
           if (a && mb && typeof PerforceChangelist !== 'undefined') {
             if (PerforceChangelist === 364597) {
               CreateTweak();
-            } else if (PerforceChangelist === 366187) {
+            } else if (PerforceChangelist === 366187 || 366355) {
               LimitedCreateTweak();
             } else {
               alert("C&C TA Simulator:\r\nUnsupported Version:" + PerforceChangelist);
