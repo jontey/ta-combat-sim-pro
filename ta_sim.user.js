@@ -3,7 +3,7 @@
 // @description    Allows you to simulate combat before actually attacking.
 // @namespace      https://prodgame*.alliances.commandandconquer.com/*/index.aspx*
 // @include        https://prodgame*.alliances.commandandconquer.com/*/index.aspx*
-// @version        1.4
+// @version        1.4.0.2
 // @author         WildKatana | Updated by CodeEcho, PythEch, Matthias Fuchs, Enceladus, KRS_L, TheLuminary, Panavia2 and Da Xue
 // @require        http://sizzlemctwizzle.com/updater.php?id=138212
 // ==/UserScript==
@@ -1291,10 +1291,8 @@
           if (a && mb && typeof PerforceChangelist !== 'undefined') {
             if (PerforceChangelist === 364597) {
               CreateTweak();
-            } else if (PerforceChangelist === 366187 || 366355) {
-              LimitedCreateTweak();
             } else {
-              alert("C&C TA Simulator:\r\nUnsupported Version:" + PerforceChangelist);
+              LimitedCreateTweak();
             }
             window.TASuite.main.getInstance().initialize();
           } else window.setTimeout(TASuite_checkIfLoaded, 1000);
