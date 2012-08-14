@@ -3,7 +3,7 @@
 // @description    Allows you to simulate combat before actually attacking.
 // @namespace      https://prodgame*.alliances.commandandconquer.com/*/index.aspx*
 // @include        https://prodgame*.alliances.commandandconquer.com/*/index.aspx*
-// @version        1.4.0.9
+// @version        1.4.0.10
 // @author         WildKatana | Updated by CodeEcho, PythEch, Matthias Fuchs, Enceladus, KRS_L, TheLuminary, Panavia2, Da Xue, MrHIDEn, JDuarteDJ
 // @require        http://sizzlemctwizzle.com/updater.php?id=138212
 // ==/UserScript==
@@ -155,9 +155,7 @@
               }
             }
 
-            units.UpdateFormation(true); //this works and USES the API so works for both servers
-            //units.CLEZCG(); // UpdateArmyLayout$0() has been renamed to CLEZCG()
-            //units.WRKUTR(); // RefreshData() has been renamed to WRKUTR()
+            units.UpdateFormation(true); 
           },
           shiftFormation: function (direction) { //left right up down
 
@@ -632,6 +630,8 @@
             });
 
             var armyBar = qx.core.Init.getApplication().getUIItem(ClientLib.Data.Missions.PATH.BAR_ATTACKSETUP);
+			var repairAll = qx.core.Init.getApplication().getUIItem(ClientLib.Data.Missions.PATH.WDG_REPAIRALL);
+			
 
             this.buttons.attack.unlock = new qx.ui.form.Button("Unlock");
             this.buttons.attack.unlock.set({
@@ -837,7 +837,7 @@
                 // TODO: check for destroyed building
                 var mod = building.get_HitpointsPercent();
                 for (var i = building.MNNADO.rer.length; --i >= 0;) {
-                  spoils[building.MNNADO.rer[i].t] += mod * building.MNNADO.rer[i].c;
+                  spoils[building.MNNADO.rer[i].t] += mod * building.MNNADO.rer[i].c; 
                 }
               }
             }
@@ -876,7 +876,7 @@
             }
           },
           calculateTroopStrengths: function (battleground) {
-            var battleground = ClientLib.Vis.VisMain.GetInstance().get_Battleground();
+			if (!battleground) var battleground = ClientLib.Vis.VisMain.GetInstance().get_Battleground();
             var total_hp = 0;
             var end_hp = 0;
             var e_total_hp = 0;
@@ -907,6 +907,10 @@
             //Found something similar in the API but the values I get are lower... using      cud.GetRepairTimeFromEUnitGroup(ClientLib.Data.EUnitGroup.Infantry) -- note that its a function not an array -- instead of repair[ClientLib.Data.EUnitGroup.Infantry], this example refers to infantery but applies to all members of ClientLib.Data.EUnitGroup
             var repair_times = own_city.get_CityUnitsData().EDTHDX.d; // m_FullRawRepairTimeForUnitGroupTypes renamed to EDTHDX
 
+			
+			//try this instead: getting values from cache is given in seconds but cant trigger cache manually. (its when mouse is over WDG_REPAIRALL button)
+			//var repair_times = crd.get_CachedFullRepairAllCost ();
+			// it uses ClientLib.Base.EResourceType directly
             var r_types = ClientLib.Base.EResourceType;
 
             var entities = battleground.NNXRBC.d; // m_Entities has been renamed to NNXRBC
@@ -914,9 +918,9 @@
               var entity = entities[i];
               var i_entity = entity.QXYJOG; // get_Entity$0() has been removed. Propery is $I.TQL - QXYJOG
               var a_entity = entity.GUXBBT; // ??? has been renamed to GUXBBT
-              var current_hp = i_entity.HOTKDN; // m_iHitpointsCurrent has been renamed to HOTKDN
-              var max_hp = i_entity.EUJPNP; // m_iHitpoints has been renamed to EUJPNP
-              if (a_entity.XPEHRJ === 2) { // ??? has been renamed to XPEHRJ, Attacker is 2
+              var current_hp = i_entity.HOTKDN;  // m_iHitpointsCurrent has been renamed to HOTKDN
+              var max_hp = i_entity.EUJPNP; //; // m_iHitpoints has been renamed to EUJPNP
+              if (a_entity.XPEHRJ === 2) { // ??? has been renamed to XPEHRJ, Attacker is 2 //get_MdbUnitId
                 // This is one of the good guys
                 end_hp += current_hp;
                 total_hp += max_hp;
@@ -944,7 +948,7 @@
                 e_end_hp += current_hp;
 
                 if (i_entity.XZXAQZ >= 200 && i_entity.XZXAQZ <= 205) {
-                  this.SupportLevel = parseInt(i_entity.BGYEIQ); // m_iLevel has been renamed to BGYEIQ
+                  this.SupportLevel = i_entity.parseInt(i_entity.BGYEIQ); //get_CurrentLevel ()?? // m_iLevel has been renamed to BGYEIQ
                   this.lastSupportPercentage = (current_hp / max_hp) * 100;
                 } else {
                   switch (i_entity.XZXAQZ) {
@@ -1022,14 +1026,17 @@
             this.stats.health.overall = end_hp ? (end_hp / total_hp) * 100 : 0;
 
             // Calculate the repair time
-            crd.ConvertRepairCost = crd.JBTHHM; // ConvertRepairCost has been renamed to JBTHHM
-            this.stats.repair.infantry = crd.ConvertRepairCost(
+            crd.ConvertRepairCost = crd.JBTHHM; // ConvertRepairCost has been renamed to JBTHHM not needed if we get from cache
+            //this.stats.repair.infantry =  repair_times[r_types.RepairChargeInf];
+			this.stats.repair.infantry =  crd.ConvertRepairCost(
             r_types.RepairChargeInf,
             repair_times[ClientLib.Data.EUnitGroup.Infantry], (1 - (i_end_hp + totalInfantryHealth - i_total_hp) / (totalInfantryHealth ? totalInfantryHealth : 1)));
-            this.stats.repair.aircraft = crd.ConvertRepairCost(
+            //this.stats.repair.aircraft = repair_times[r_types.RepairChargeAir];
+			this.stats.repair.aircraft = crd.ConvertRepairCost(
             r_types.RepairChargeAir,
             repair_times[ClientLib.Data.EUnitGroup.Aircraft], (1 - (a_end_hp + totalAirHealth - a_total_hp) / (totalAirHealth ? totalAirHealth : 1)));
-            this.stats.repair.vehicle = crd.ConvertRepairCost(
+            //this.stats.repair.vehicle = repair_times[r_types.RepairChargeVeh];
+			this.stats.repair.vehicle = crd.ConvertRepairCost(
             r_types.RepairChargeVeh,
             repair_times[ClientLib.Data.EUnitGroup.Vehicle], (1 - (v_end_hp + totalVehicleHealth - v_total_hp) / (totalVehicleHealth ? totalVehicleHealth : 1)));
             this.stats.repair.overall = Math.max(this.stats.repair.vehicle,
@@ -1179,10 +1186,9 @@
 
               var alliance = ClientLib.Data.MainData.GetInstance().get_Alliance();
               var combatData = (new ClientLib.Data.Combat).$ctor();
-              // var combatData = (new $I.CM).QB();
-              combatData.MCXRNN = 1; // Version is MCXRNN
+              combatData.MCXRNN = 1; // Version is MCXRNN : hmmm you can set version on a city but not on Data.Combat What  is version anyway?
 
-              var unitData = own_city.get_CityUnitsData().YDBIOO().l; // Attacker Units renamed  to YDBIOO
+              var unitData = new Array();//own_city.get_CityUnitsData().YDBIOO().l; // Attacker Units renamed  to YDBIOO
               if (offense_units) {
                 offense_units = offense_units.SXMOWS.l;
               } else {
@@ -1191,6 +1197,7 @@
               var data = new Array();
 
               for (var i = 0; i < unitData.length; i++) {
+				unitData[i] = offense_units[i].GetCityUnit(); //this replaces the comented line above
                 if (offense_units[i].get_Enabled()) {
                   var info = new Object();
                   info.h = unitData[i].get_Health();
@@ -1202,7 +1209,7 @@
                 }
               }
 
-              combatData.UJWJOI = data; // Attackers renamed to UJWJOI
+              combatData.Update ("WHAT IS THIS TAG?",data); //System.String tag  ???!
 
               data = new Array();
               if (current_city.get_CityUnitsData().TXDWUM !== null) { // empty defender army
@@ -1317,29 +1324,19 @@
             }
           },
           startSimulation: function () {
-            try {
+		   try {
+              var ownCity = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentOwnCity();
+              var city = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCity();
+              ownCity.get_CityArmyFormationsManager().set_CurrentTargetBaseId(city.get_Id());
+              ClientLib.Data.MainData.GetInstance().get_Combat().Clear();
+              city.SimulateBattle();
+              ClientLib.Data.MainData.GetInstance().get_Combat().set_Id(city.get_Id());
               var app = qx.core.Init.getApplication();
-              var player_cities = ClientLib.Data.MainData.GetInstance().get_Cities();
-              var current_city = player_cities.get_CurrentCity();
+              app.getPlayArea().setView(webfrontend.gui.PlayArea.PlayArea.modes.EMode_CombatAttacker, city.get_Id(), 0, 0);
 
-              try {
-                app.getPlayArea().setView(webfrontend.gui.PlayArea.PlayArea.modes.EMode_CombatReplay, current_city.get_Id(), 0, 0);
-              } catch (e) {
-                app.getPlayArea().setView(webfrontend.gui.PlayArea.modes.EMode_CombatReplay, current_city.get_Id(), 0, 0);
-              }
-              var battleground = this.setupBattleground();
-
-              // Set the scene again, just in case it didn't work the first time
-              try {
-                app.getPlayArea().setView(webfrontend.gui.PlayArea.PlayArea.modes.EMode_CombatReplay, current_city.get_Id(), 0, 0);
-              } catch (e) {
-                app.getPlayArea().setView(webfrontend.gui.PlayArea.modes.EMode_CombatReplay, current_city.get_Id(), 0, 0);
-              }
-
-              this.battleResultsBox.close();
             } catch (e) {
               console.log(e);
-            }
+			}
           },
           updateLayoutsList: function () {
             this.layoutsList.removeAll();
