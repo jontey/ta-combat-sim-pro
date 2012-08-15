@@ -905,14 +905,12 @@
             var cud = own_city.get_CityUnitsData();
 
             //Found something similar in the API but the values I get are lower... using      cud.GetRepairTimeFromEUnitGroup(ClientLib.Data.EUnitGroup.Infantry) -- note that its a function not an array -- instead of repair[ClientLib.Data.EUnitGroup.Infantry], this example refers to infantery but applies to all members of ClientLib.Data.EUnitGroup
-            var repair_times = own_city.get_CityUnitsData().EDTHDX.d; // m_FullRawRepairTimeForUnitGroupTypes renamed to EDTHDX
+            var repair_times = cud.EDTHDX.d; // m_FullRawRepairTimeForUnitGroupTypes renamed to EDTHDX
 
 			
-			//try this instead: getting values from cache is given in seconds but cant trigger cache manually. (its when mouse is over WDG_REPAIRALL button)
-			//var repair_times = crd.get_CachedFullRepairAllCost ();
-			// it uses ClientLib.Base.EResourceType directly
             var r_types = ClientLib.Base.EResourceType;
-
+			var u_types = ClientLib.Data.EUnitGroup;
+			
             var entities = battleground.NNXRBC.d; // m_Entities has been renamed to NNXRBC
             for (var i in entities) {
               var entity = entities[i];
@@ -1018,7 +1016,7 @@
             this.stats.health.infantry = i_total_hp ? (i_end_hp / i_total_hp) * 100 : 100;
             this.stats.health.vehicle = v_total_hp ? (v_end_hp / v_total_hp) * 100 : 100;
             this.stats.health.aircraft = a_total_hp ? (a_end_hp / a_total_hp) * 100 : 100;
-            this.totalSeconds = (battleground.DHSWQJ.NHMXEO * battleground.get_TimePerStep()) / 1000;
+            this.totalSeconds = (battleground.DHSWQJ.NHMXEO * battleground.get_TimePerStep()) / 1000; //battleground.get_BattleDuration () ??
 
             this.stats.damage.units.overall = (eu_end_hp / eu_total_hp) * 100;
             this.stats.damage.structures.overall = (eb_end_hp / eb_total_hp) * 100;
@@ -1027,18 +1025,18 @@
 
             // Calculate the repair time
             crd.ConvertRepairCost = crd.JBTHHM; // ConvertRepairCost has been renamed to JBTHHM not needed if we get from cache
-            //this.stats.repair.infantry =  repair_times[r_types.RepairChargeInf];
-			this.stats.repair.infantry =  crd.ConvertRepairCost(
+            this.stats.repair.infantry = cud.GetRepairTimeFromEUnitGroup(u_type.Infantry)*(1 - (i_end_hp + totalInfantryHealth - i_total_hp) / (totalInfantryHealth ? totalInfantryHealth : 1));
+			/*this.stats.repair.infantry =  crd.ConvertRepairCost(
             r_types.RepairChargeInf,
-            repair_times[ClientLib.Data.EUnitGroup.Infantry], (1 - (i_end_hp + totalInfantryHealth - i_total_hp) / (totalInfantryHealth ? totalInfantryHealth : 1)));
-            //this.stats.repair.aircraft = repair_times[r_types.RepairChargeAir];
-			this.stats.repair.aircraft = crd.ConvertRepairCost(
+            repair_times[ClientLib.Data.EUnitGroup.Infantry], (1 - (i_end_hp + totalInfantryHealth - i_total_hp) / (totalInfantryHealth ? totalInfantryHealth : 1)));*/
+            this.stats.repair.aircraft = cud.GetRepairTimeFromEUnitGroup(u_type.Aircraft)*(1 - (i_end_hp + totalAirHealth - i_total_hp) / (totalAirHealth ? totalAirHealth : 1));
+			/*this.stats.repair.aircraft = crd.ConvertRepairCost(
             r_types.RepairChargeAir,
-            repair_times[ClientLib.Data.EUnitGroup.Aircraft], (1 - (a_end_hp + totalAirHealth - a_total_hp) / (totalAirHealth ? totalAirHealth : 1)));
-            //this.stats.repair.vehicle = repair_times[r_types.RepairChargeVeh];
-			this.stats.repair.vehicle = crd.ConvertRepairCost(
+            repair_times[ClientLib.Data.EUnitGroup.Aircraft], (1 - (a_end_hp + totalAirHealth - a_total_hp) / (totalAirHealth ? totalAirHealth : 1)));*/
+            this.stats.repair.vehicle = cud.GetRepairTimeFromEUnitGroup(u_type.Vehicle)*(1 - (i_end_hp + totalVehicleHealth - i_total_hp) / (totalVehicleHealth ? totalVehicleHealth : 1));
+			/*this.stats.repair.vehicle = crd.ConvertRepairCost(
             r_types.RepairChargeVeh,
-            repair_times[ClientLib.Data.EUnitGroup.Vehicle], (1 - (v_end_hp + totalVehicleHealth - v_total_hp) / (totalVehicleHealth ? totalVehicleHealth : 1)));
+            repair_times[ClientLib.Data.EUnitGroup.Vehicle], (1 - (v_end_hp + totalVehicleHealth - v_total_hp) / (totalVehicleHealth ? totalVehicleHealth : 1)));*/
             this.stats.repair.overall = Math.max(this.stats.repair.vehicle,
             this.stats.repair.aircraft, this.stats.repair.infantry);
 
