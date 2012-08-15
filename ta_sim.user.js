@@ -629,9 +629,7 @@
               left: 0
             });
 
-            var armyBar = qx.core.Init.getApplication().getUIItem(ClientLib.Data.Missions.PATH.BAR_ATTACKSETUP);
-			var repairAll = qx.core.Init.getApplication().getUIItem(ClientLib.Data.Missions.PATH.WDG_REPAIRALL);
-			
+            var armyBar = qx.core.Init.getApplication().getUIItem(ClientLib.Data.Missions.PATH.BAR_ATTACKSETUP);			
 
             this.buttons.attack.unlock = new qx.ui.form.Button("Unlock");
             this.buttons.attack.unlock.set({
@@ -865,6 +863,8 @@
             // Run the simulation until it's done
             while (battleground.DHSWQJ.OAEJMD(false)) {}
             // DoStep$0 was renamed to OAEJMD, m_Simulation was renamed to DHSWQJ
+			//static System.Int32 get_SimulationResolution () ??
+			//static System.Int32 get_DamageResolution () ??
 
             this.calculateTroopStrengths(battleground);
           },
@@ -1024,16 +1024,16 @@
             this.stats.health.overall = end_hp ? (end_hp / total_hp) * 100 : 0;
 
             // Calculate the repair time
-            crd.ConvertRepairCost = crd.JBTHHM; // ConvertRepairCost has been renamed to JBTHHM not needed if we get from cache
-            this.stats.repair.infantry = cud.GetRepairTimeFromEUnitGroup(u_type.Infantry)*(1 - (i_end_hp + totalInfantryHealth - i_total_hp) / (totalInfantryHealth ? totalInfantryHealth : 1));
+           // crd.ConvertRepairCost = crd.JBTHHM; // ConvertRepairCost has been renamed to JBTHHM not needed if we get from cache
+            this.stats.repair.infantry = cud.GetRepairTimeFromEUnitGroup(u_types.Infantry)*(1 - (i_end_hp + totalInfantryHealth - i_total_hp) / (totalInfantryHealth ? totalInfantryHealth : 1));
 			/*this.stats.repair.infantry =  crd.ConvertRepairCost(
             r_types.RepairChargeInf,
             repair_times[ClientLib.Data.EUnitGroup.Infantry], (1 - (i_end_hp + totalInfantryHealth - i_total_hp) / (totalInfantryHealth ? totalInfantryHealth : 1)));*/
-            this.stats.repair.aircraft = cud.GetRepairTimeFromEUnitGroup(u_type.Aircraft)*(1 - (i_end_hp + totalAirHealth - i_total_hp) / (totalAirHealth ? totalAirHealth : 1));
+            this.stats.repair.aircraft = cud.GetRepairTimeFromEUnitGroup(u_types.Aircraft)*(1 - (i_end_hp + totalAirHealth - i_total_hp) / (totalAirHealth ? totalAirHealth : 1));
 			/*this.stats.repair.aircraft = crd.ConvertRepairCost(
             r_types.RepairChargeAir,
             repair_times[ClientLib.Data.EUnitGroup.Aircraft], (1 - (a_end_hp + totalAirHealth - a_total_hp) / (totalAirHealth ? totalAirHealth : 1)));*/
-            this.stats.repair.vehicle = cud.GetRepairTimeFromEUnitGroup(u_type.Vehicle)*(1 - (i_end_hp + totalVehicleHealth - i_total_hp) / (totalVehicleHealth ? totalVehicleHealth : 1));
+            this.stats.repair.vehicle = cud.GetRepairTimeFromEUnitGroup(u_types.Vehicle)*(1 - (i_end_hp + totalVehicleHealth - i_total_hp) / (totalVehicleHealth ? totalVehicleHealth : 1));
 			/*this.stats.repair.vehicle = crd.ConvertRepairCost(
             r_types.RepairChargeVeh,
             repair_times[ClientLib.Data.EUnitGroup.Vehicle], (1 - (v_end_hp + totalVehicleHealth - v_total_hp) / (totalVehicleHealth ? totalVehicleHealth : 1)));*/
@@ -1184,9 +1184,9 @@
 
               var alliance = ClientLib.Data.MainData.GetInstance().get_Alliance();
               var combatData = (new ClientLib.Data.Combat).$ctor();
-              combatData.MCXRNN = 1; // Version is MCXRNN : hmmm you can set version on a city but not on Data.Combat What  is version anyway?
+              combatData.MCXRNN = 1; //new Array(); // Version is MCXRNN : hmmm you can set version on a city but not on Data.Combat What  is version anyway?
 
-              var unitData = new Array();//own_city.get_CityUnitsData().YDBIOO().l; // Attacker Units renamed  to YDBIOO
+              var unitData = own_city.get_CityUnitsData().YDBIOO().l; // Attacker Units renamed  to YDBIOO
               if (offense_units) {
                 offense_units = offense_units.SXMOWS.l;
               } else {
@@ -1195,7 +1195,7 @@
               var data = new Array();
 
               for (var i = 0; i < unitData.length; i++) {
-				unitData[i] = offense_units[i].GetCityUnit(); //this replaces the comented line above
+				//unitData[i] = offense_units[i].GetCityUnit(); //this replaces the comented line above get_UnitGameData_Obj
                 if (offense_units[i].get_Enabled()) {
                   var info = new Object();
                   info.h = unitData[i].get_Health();
@@ -1207,7 +1207,8 @@
                 }
               }
 
-              combatData.Update ("WHAT IS THIS TAG?",data); //System.String tag  ???!
+			  combatData.UJWJOI = data; // Attackers renamed to UJWJOI
+              //combatData.Update ("Attackers",data); //System.String tag  ???! consifer this!!
 
               data = new Array();
               if (current_city.get_CityUnitsData().TXDWUM !== null) { // empty defender army
@@ -1223,7 +1224,7 @@
                 }
               }
               combatData.PMEAOH = data; // Defenders renamed to PMEAOH
-
+			  //combatData.Update ("Defenders",data);
               data = new Array();
               for (var i = 0; i < 9; i++) {
                 for (var j = 0; j < 8; j++) {
@@ -1257,7 +1258,8 @@
               }
 
               combatData.YDPGXU = data; // Terrain renamed to YDPGXU
-
+			  //combatData.Update ("Terrain",data);
+				
               unitData = current_city.get_CityBuildingsData().HWFIJH.l; // City buildings renamed to HWFIJH
 
               data = new Array();
