@@ -1325,18 +1325,28 @@
           },
           startSimulation: function () {
 		   try {
-              var ownCity = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentOwnCity();
-              var city = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCity();
-              ownCity.get_CityArmyFormationsManager().set_CurrentTargetBaseId(city.get_Id());
-              ClientLib.Data.MainData.GetInstance().get_Combat().Clear();
-              city.SimulateBattle();
-              ClientLib.Data.MainData.GetInstance().get_Combat().set_Id(city.get_Id());
               var app = qx.core.Init.getApplication();
-              app.getPlayArea().setView(webfrontend.gui.PlayArea.PlayArea.modes.EMode_CombatAttacker, city.get_Id(), 0, 0);
+              var player_cities = ClientLib.Data.MainData.GetInstance().get_Cities();
+              var current_city = player_cities.get_CurrentCity();
 
+              try {
+                app.getPlayArea().setView(webfrontend.gui.PlayArea.PlayArea.modes.EMode_CombatReplay, current_city.get_Id(), 0, 0);
+              } catch (e) {
+                app.getPlayArea().setView(webfrontend.gui.PlayArea.modes.EMode_CombatReplay, current_city.get_Id(), 0, 0);
+              }
+              var battleground = this.setupBattleground();
+
+              // Set the scene again, just in case it didn't work the first time
+              try {
+                app.getPlayArea().setView(webfrontend.gui.PlayArea.PlayArea.modes.EMode_CombatReplay, current_city.get_Id(), 0, 0);
+              } catch (e) {
+                app.getPlayArea().setView(webfrontend.gui.PlayArea.modes.EMode_CombatReplay, current_city.get_Id(), 0, 0);
+              }
+
+              this.battleResultsBox.close();
             } catch (e) {
               console.log(e);
-			}
+            }
           },
           updateLayoutsList: function () {
             this.layoutsList.removeAll();
